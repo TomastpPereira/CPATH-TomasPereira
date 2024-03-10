@@ -1587,19 +1587,17 @@ class WSIReader:
             
             whitePatch = False
             if count==0:
-                whiteness = np.mean(im[:,:,:], axis=(0,1))
+                blankBaseline = np.mean((im[:,:,0], im[:,:,1],im[:,:,2]))
                 count=1
     
             im_aggregate = np.mean(im[:,:,:], axis=(0,1))
-            if im_aggregate[0]<whiteness[0]-1 and im_aggregate[1]<whiteness[1]-1 and im_aggregate[2]<whiteness[2]-1:
-                pass
-            else:
-                whitePatch = True
+            if blankBaseline[0]-1<im_aggregate[0] and blankBaseline[1]-1<im_aggregate[1] and blankBaseline[2]-1<im_aggregate[2]:
+                whitePatch = True                
             
             if whitePatch == False:
                 imwrite(image_path=output_dir / img_save_name, img=im)
             else:
-                pass
+                continue
 
             data.append(
                 [
@@ -1633,6 +1631,8 @@ class WSIReader:
         # Save slide thumbnail
         slide_thumb = self.slide_thumbnail()
         imwrite(output_dir / f"slide_thumbnail{tile_format}", img=slide_thumb)
+
+        print("DEBUG:", blankBaseline)
 
         if verbose:
             logger.setLevel(logging.INFO)
